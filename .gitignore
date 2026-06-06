@@ -1,0 +1,39 @@
+# Editor temporary files
+*~
+*.swp
+*.swo
+*.swn
+*.swm
+*.swx
+*.DS_Store
+
+# Zephyr / NCS build outputs
+/build/
+/build_results/
+/out/
+/zephyr/
+*.o
+*.d
+*.elf
+*.bin
+*.hex
+*.uf2
+*.img
+*.zip
+*.map
+*.lst
+*.dfu
+*.hex.signed
+*.manifest
+*.log
+*.csv
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# IDE settings
+.vscode/
+*.code-workspace
