@@ -1,0 +1,19 @@
+&i2c1 {
+    status = "okay";
+    clock-frequency = <100000>; /* Standard 100kHz bitrate */
+
+    bme680: bme680@76 {
+        compatible = "bosch,bme680";
+        reg = <0x76>;
+    };
+
+    bmm150: bmm150@10 {
+        compatible = "bosch,bmm150";
+        reg = <0x10>;          
+        status = "okay";
+    };
+};
+
+&adxl362 {
+    status = "okay";
+};
