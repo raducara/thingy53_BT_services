@@ -30,6 +30,7 @@
 #include "bme68x_service.h"
 #include "adxl362_service.h"
 #include "bmm150_service.h"
+#include "BH1749NUC_colorsens_service.h"
 
 #define DEVICE_NAME             CONFIG_BT_DEVICE_NAME
 #define DEVICE_NAME_LEN         (sizeof(DEVICE_NAME) - 1)
@@ -212,6 +213,8 @@ int main(void)
 	char debug_msg[96];
 	int bmm150_init_status = 0;
 	int bmm150_exec_status = 0;
+	int bh1749_init_status = 0;
+	int bh1749_exec_status = 0;
 
     printk("Starting Bluetooth Peripheral LBS sample\n");
 
@@ -288,9 +291,15 @@ int main(void)
     	printk("Failed to init BMM150 service (err %d)\n", bmm150_init_status);
 	}
 
+    bh1749_init_status = bh1749_service_init();
+    if (bh1749_init_status) {
+        printk("Failed to init BH1749 color sensor (err %d)\n", bh1749_init_status);
+    }
+
 	snprintk(debug_msg, sizeof(debug_msg),
-         "BMM_INIT=%d BMM_EXEC=%d",
-         bmm150_init_status, bmm150_exec_status);
+         "BMM_INIT=%d BMM_EXEC=%d BH1749_INIT=%d BH1749_EXEC=%d",
+         bmm150_init_status, bmm150_exec_status,
+         bh1749_init_status, bh1749_exec_status);
 	debug_service_set_message(debug_msg);
 
 #endif
@@ -315,17 +324,25 @@ int main(void)
             printk("bmm150_execute failed (err %d)\n", err);
         }
 */
-/*
+
 	bmm150_exec_status = bmm150_execute();
     if (bmm150_exec_status &&
         bmm150_exec_status != -ENODEV &&
         bmm150_exec_status != -ENOTCONN) {
         printk("bmm150_execute failed (err %d)\n", bmm150_exec_status);
     }
-*/
+
+    bh1749_exec_status = bh1749_execute();
+    if (bh1749_exec_status &&
+        bh1749_exec_status != -ENODEV &&
+        bh1749_exec_status != -ENOTCONN) {
+        printk("bh1749_execute failed (err %d)\n", bh1749_exec_status);
+    }
+
     snprintk(debug_msg, sizeof(debug_msg),
-             "BMM_INIT=%d BMM_EXEC=%d",
-             bmm150_init_status, bmm150_exec_status);
+             "BMM_INIT=%d BMM_EXEC=%d BH1749_INIT=%d BH1749_EXEC=%d",
+             bmm150_init_status, bmm150_exec_status,
+             bh1749_init_status, bh1749_exec_status);
 
     debug_service_set_message(debug_msg);
     err = debug_service_notify();
