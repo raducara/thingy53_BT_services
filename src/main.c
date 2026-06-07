@@ -283,7 +283,7 @@ int main(void)
         return 0;
     }
 
-  //  bmm150_init_status = bmm150_service_init();
+    bmm150_init_status = bmm150_service_init();
 	if (bmm150_init_status) {
     	printk("Failed to init BMM150 service (err %d)\n", bmm150_init_status);
 	}
