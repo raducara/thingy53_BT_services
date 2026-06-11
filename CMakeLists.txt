@@ -15,6 +15,7 @@ target_sources(app PRIVATE
   src/adxl362_service.c
   src/bmm150_service.c
   src/BH1749NUC_colorsens_service.c
+  src/bmi270_service.c
   src/debug_service.c
 )
 

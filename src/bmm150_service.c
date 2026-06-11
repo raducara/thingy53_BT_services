@@ -10,6 +10,8 @@
 
 #include <zephyr/sys/printk.h>
 #include <zephyr/sys/util.h>
+#include <zephyr/drivers/i2c.h>
+#include <zephyr/drivers/spi.h>
 
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/uuid.h>
@@ -21,6 +23,38 @@ static bool mag_ready;
 static bool bmm150_notify_enabled;
 
 static const struct device *mag = DEVICE_DT_GET_ONE(bosch_bmm150);
+
+#define BMM150_REG_CHIP_ID         0x40
+
+union bmm150_bus;
+
+typedef int (*bmm150_reg_read_fn)(const union bmm150_bus *bus,
+                                  uint8_t start,
+                                  uint8_t *buf,
+                                  int size);
+
+typedef int (*bmm150_reg_write_fn)(const union bmm150_bus *bus,
+                                   uint8_t reg,
+                                   uint8_t val);
+
+struct bmm150_bus_io {
+        bmm150_reg_read_fn read;
+        bmm150_reg_write_fn write;
+};
+
+union bmm150_bus {
+#if defined(CONFIG_I2C)
+        struct i2c_dt_spec i2c;
+#endif
+#if defined(CONFIG_SPI)
+        struct spi_dt_spec spi;
+#endif
+};
+
+struct bmm150_config {
+        union bmm150_bus bus;
+        const struct bmm150_bus_io *bus_io;
+};
 
 #define BT_UUID_BMM150_SERVICE_VAL \
 	BT_UUID_128_ENCODE(0x12345678, 0x1234, 0x5678, 0x1234, 0x56789abc0020)
@@ -89,6 +123,34 @@ int bmm150_service_init(void)
 	printk("BMM150 ready: %s (%p)\n", mag->name, mag);
 	mag_ready = true;
 
+	return 0;
+}
+
+int bmm150_get_chip_id(uint8_t *chip_id)
+{
+	const struct bmm150_config *cfg;
+	int err;
+
+	if (chip_id == NULL) {
+		return -EINVAL;
+	}
+
+	if (!mag_ready) {
+		return -ENODEV;
+	}
+
+	cfg = mag->config;
+	if (cfg == NULL || cfg->bus_io == NULL || cfg->bus_io->read == NULL) {
+		return -EINVAL;
+	}
+
+	err = cfg->bus_io->read(&cfg->bus, BMM150_REG_CHIP_ID, chip_id, 1);
+	if (err) {
+		printk("BMM150 chip id read failed (err %d)\n", err);
+		return err;
+	}
+
+	printk("BMM150 chip id: 0x%02x\n", *chip_id);
 	return 0;
 }
 

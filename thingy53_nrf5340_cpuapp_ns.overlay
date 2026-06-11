@@ -23,3 +23,9 @@
 &adxl362 {
     status = "okay";
 };
+
+&spi3 {
+    bmi270: spi-dev-bmi270@1 {
+        status = "okay";
+    }; 
+};
